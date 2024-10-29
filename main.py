@@ -1,59 +1,86 @@
 import requests
 
-
 url = 'https://api.hh.ru/vacancies'
 lang_list = {
     'Python', 'JavaScript', 'Java', 'C#', 'PHP', 'C++', 'Golang', 'Ruby', 'SQL', 'Visual Basic'
 }
 vacancies_count = {}
 
-
-def get_response(params):
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    return response.json()
-
-
-def get_vacancies_count():
-    for lang in lang_list:
+def get_vacancies(lang):
+    all_vacancies = []
+    page = 0
+    while True:
         params = {
             'text': f'программист {lang}',
             'area': 1,
-            'period': 30
+            'period': 5,
+            'page': page,
+            'per_page': 100
         }
-        count_vacancies = get_response(params)['found']
+        print(f"Загрузка {lang} - страница {page + 1}...")
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data_vacancies = response.json()
+        all_vacancies.extend(data_vacancies['items'])
+        if page >= data_vacancies['pages'] - 1:
+            break
+        page += 1
+
+    return all_vacancies
+
+
+def calculate_average_salary(salary_info):
+    if salary_info.get('currency') != 'RUR':
+        return None
+
+    if salary_info.get('from') is not None and salary_info.get('to') is not None:
+        return int((salary_info['from'] + salary_info['to']) / 2)
+    elif salary_info.get('from') is not None:
+        return int(salary_info['from'] * 1.2)
+    elif salary_info.get('to') is not None:
+        return int(salary_info['to'] * 0.8)
+
+    return None
+
+def get_vacancies_count():
+    for lang in lang_list:
+        all_vacancies  = get_vacancies(lang)
+        count_vacancies = len(all_vacancies)
         if count_vacancies > 100:
             vacancies_count[lang] = count_vacancies
     return vacancies_count
 
+def predict_rub_salary():
+    salary_data = {}
+    vacancies_count_result = get_vacancies_count()
 
-def predict_rub_salary(vacancy):
-    params = {
-        'text': f'программист {vacancy}',
-        'area': 1,
-        'period': 30,
-        'only_with_salary': True
-    }
-    data_vacancies = get_response(params)
-    salaries = []
-    for salary in data_vacancies['items']:
-        if salary['salary'].get('currency') !='RUR':
-            average_salary = 'None'
-            salaries.append(average_salary)
-        if salary['salary'].get('from') is not None:
-            average_salary = int((salary['salary'].get('from')*1.2))
-        elif salary['salary'].get('to') is not None:
-            average_salary = int((salary['salary'].get('to') * 0.8))
-        else:
-            average_salary = int((salary['salary'].get('from')*salary['salary'].get('to'))/2)
-        salaries.append(average_salary)
+    for lang in lang_list:
+        total_vacancies = vacancies_count_result.get(lang)
+        if total_vacancies is None:
+            continue
 
-    return salaries
+        all_vacancies = get_vacancies(lang)
+        salaries = []
+        processed_count = 0
 
+        for vacancy in all_vacancies:
+            processed_count += 1
+            salary_info = vacancy.get('salary')
+            if salary_info is None:
+                continue
 
+            average_salary = calculate_average_salary(salary_info)
+            if average_salary is not None:
+                salaries.append(average_salary)
 
-print(predict_rub_salary('Python'))
-for salary in predict_rub_salary('Python'):
-    i = salary
-    average_salary = int((i + salary)/salary)
-    print (average_salary)
+        if salaries:
+            average_salary = sum(salaries) // len(salaries)
+            salary_data[lang] = {
+                "vacancies_found": total_vacancies,
+                "vacancies_processed": processed_count,
+                "average_salary": average_salary
+            }
+
+    return salary_data
+
+print(predict_rub_salary())
