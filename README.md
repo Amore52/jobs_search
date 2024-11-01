@@ -25,10 +25,10 @@
 ### Инструкция по установке
 
 1. Клонируйте репозиторий:
-   ```bash
+```
    git clone https://github.com/yourusername/jobs_salary_predictor.git
    cd jobs_salary_predictor
-
+```
 2. Создайте виртуальное окружение (рекомендуется, но не обязательно):
 
 ```
