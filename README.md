@@ -26,8 +26,7 @@
 
 1. Клонируйте репозиторий:
 ```
-   git clone https://github.com/yourusername/jobs_salary_predictor.git
-   cd jobs_salary_predictor
+   git clone https://github.com/Amore52/jobs_search
 ```
 2. Создайте виртуальное окружение (рекомендуется, но не обязательно):
 
