@@ -26,7 +26,7 @@
 
 1. Клонируйте репозиторий:
 ```
-   git clone https://github.com/Amore52/jobs_search
+git clone https://github.com/Amore52/jobs_search
 ```
 2. Создайте виртуальное окружение (рекомендуется, но не обязательно):
 
