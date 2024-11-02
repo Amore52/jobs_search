@@ -37,7 +37,7 @@ venv\Scripts\activate`
 3. Установите необходимые пакеты:
 
 ```
-pip install requests python-dotenv terminaltables
+pip install -r requirements.txt
 ```
 
 4. Создайте файл .env в корневом каталоге проекта и добавьте ваш токен API SuperJob:
