@@ -30,12 +30,12 @@ def hh_get_vacancies(lang):
 
         response = requests.get(HH_URL, params=params)
         response.raise_for_status()
-        json_response = response.json()
-        vacancies.extend(json_response['items'])
+        hh_vacancies_response = response.json()
+        vacancies.extend(hh_vacancies_response['items'])
 
         if page == 0:
-            total_vacancies = json_response['found']
-        if page >= json_response['pages'] - 1:
+            total_vacancies = hh_vacancies_response['found']
+        if page >= hh_vacancies_response['pages'] - 1:
             break
         page += 1
 
@@ -57,12 +57,12 @@ def sj_get_vacancies(lang, sj_headers):
 
         response = requests.get(SJ_URL, headers=sj_headers, params=params)
         response.raise_for_status()
-        json_response = response.json()
+        sj_vacancies_response = response.json()
 
         if page == 0:
-            total_vacancies = json_response['total']
-        vacancies.extend(json_response['objects'])
-        if not json_response.get('more'):
+            total_vacancies = sj_vacancies_response['total']
+        vacancies.extend(sj_vacancies_response['objects'])
+        if not sj_vacancies_response.get('more'):
             break
         page += 1
 
